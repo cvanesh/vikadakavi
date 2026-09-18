@@ -125,9 +125,67 @@
 
   pass.focus();
 
+  // ── Keeping the cached copy honest ──────────────────────────────────
+  // sw.js serves cache-first, so a fresh deploy would otherwise sit unseen
+  // until the second launch. Rather than bump a version string on every
+  // build, ask the network at startup whether the shell actually changed:
+  // a HEAD is a few hundred bytes, and the worker passes non-GET straight
+  // out. If it changed, refresh the cache — and reload only while the gate
+  // is untouched, so an update never interrupts someone mid-deck. If he is
+  // busy, the cache is already new and the next launch opens on it.
+  const CACHE = 'vk-v1';                 // must match VERSION in sw.js
+  const WATCH = ['./', './dist/payload.enc.js'];
+  const BUST  = '__fresh';
+
+  let touched = false;
+  pass.addEventListener('input', () => { touched = true; }, { once: true });
+
+  // GitHub Pages sends both, and holds the ETag steady across a query string.
+  const stamp = (res) => res && (res.headers.get('ETag') || res.headers.get('Last-Modified'));
+
+  async function refreshCache() {
+    if (!('caches' in window) || navigator.onLine === false) return false;
+    const cache = await caches.open(CACHE);
+    let changed = false;
+
+    for (const url of WATCH) {
+      const hit = await cache.match(url);
+      if (!hit) continue;                // nothing cached yet, so nothing stale
+      const probe = await fetch(url, { method: 'HEAD', cache: 'no-store' });
+      if (!probe.ok) continue;
+      const now = stamp(probe), was = stamp(hit);
+      if (!now || !was || now === was) continue;
+      // The worker matches on URL, so a plain re-fetch hands back the cached
+      // copy. Go around it, then store under the real URL. Downloading before
+      // replacing means a blip never leaves the app with no offline copy.
+      const sep = url.includes('?') ? '&' : '?';
+      const fresh = await fetch(`${url}${sep}${BUST}=${Date.now()}`, { cache: 'no-store' });
+      if (!fresh.ok) continue;
+      await cache.put(url, fresh);
+      changed = true;
+    }
+
+    // The worker cached those cache-busted URLs on the way past. Drop them.
+    for (const req of await cache.keys()) {
+      if (req.url.includes(`${BUST}=`)) await cache.delete(req);
+    }
+    return changed;
+  }
+
+  // The worker is https-only — registering one on localhost would serve dev
+  // work out of a cache. The staleness check is not: it no-ops when nothing
+  // is cached, so it is safe to run anywhere, and that keeps it testable.
   if ('serviceWorker' in navigator && location.protocol === 'https:') {
     addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
   }
+  addEventListener('load', () => {
+    // Never throws into the gate: a failed check just leaves the cache alone.
+    refreshCache()
+      .then((changed) => {
+        if (changed && !touched && document.getElementById('gate')) location.reload();
+      })
+      .catch(() => {});
+  });
 })();
 </script>
 </body>

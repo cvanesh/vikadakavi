@@ -25,16 +25,24 @@ createServer((req, res) => {
   const file = join(ROOT, rel);
   if (!file.startsWith(ROOT)) { res.writeHead(403).end('Forbidden'); return; }
 
+  let info;
   try {
-    if (statSync(file).isDirectory()) { res.writeHead(404).end('Not found'); return; }
+    info = statSync(file);
+    if (info.isDirectory()) { res.writeHead(404).end('Not found'); return; }
   } catch {
     res.writeHead(404).end('Not found');
     return;
   }
 
+  // index.html compares validators to decide whether the cached app went
+  // stale, the way it does against GitHub Pages. Without one here the check
+  // could never fire locally, so it could never be tested either.
   res.writeHead(200, {
     'Content-Type': TYPES[extname(file)] ?? 'application/octet-stream',
-    'Cache-Control': 'no-store'
+    'Cache-Control': 'no-store',
+    'ETag': `"${info.mtimeMs.toString(16)}-${info.size.toString(16)}"`,
+    'Last-Modified': info.mtime.toUTCString()
   });
+  if (req.method === 'HEAD') { res.end(); return; }
   createReadStream(file).pipe(res);
 }).listen(PORT, () => console.log(`http://localhost:${PORT}/`));

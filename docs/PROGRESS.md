@@ -17,9 +17,14 @@ disqualifying for a public repo. The old history is kept locally on branch
 The remote is SSH (`git@github.com:cvanesh/vikadakavi.git`); the stored HTTPS
 keychain credential is a dead password and fails.
 
-⚠ **The live payload predates the 2026-09-18 mobile layout fix.** Shipping it
-needs `npm run build` with the real passphrase (owner only, hidden prompt, in a
-real terminal — the build tool needs a TTY), then commit and push.
+The mobile layout fix is live: the deployed payload's SHA-256 was checked
+against the local build, byte for byte.
+
+**A source change only reaches the site inside the payload.** `/src/` is
+gitignored, so any edit under it needs `npm run build` with the real passphrase
+(owner only, hidden prompt, in a real terminal — the tool needs a TTY) before
+the commit. Root files (`index.html`, `sw.js`, `manifest.json`) deploy directly
+and need no rebuild.
 
 Read `VISION.md` for the locked decisions and `TRACEABILITY.md` for goal
 coverage. This file is the running state: what exists, what is next, what is
@@ -79,6 +84,7 @@ edit the script → `npm run scripts` → build → screenshot only that card �
 | Tests | 134 across 3 devices, incl. `deck.spec.js`: every card draws and fits, rally stepping, Why panel stickiness, replay resets the pose, runners move, oath ticks, topic tiles. |
 | Sections (2026-09-17) | Deck is **24 cards in four sections**: The oath (2) → Directionals (16) → Between points (1) → 5 Laws (5). The contents card leads with a tappable topic tile per section (icon, blurb, card count), then the full list. |
 | The oath | `module-e.js`, copied from the tennis-oath app: player and parent oaths, 12 lines each, a box to tick per line, an in-memory counter. No streaks, no signing, nothing stored. Keeps the source emoji — the owner's exception to the no-emoji rule. |
+| Self-updating cache (2026-09-18) | `sw.js` serves cache-first under a fixed `vk-v1`, so a deploy used to sit unseen until the second launch. `index.html` now compares validators at startup — a HEAD on `./` and the payload (the worker passes non-GET straight out), ETag against the cached response — and if they differ it downloads, replaces the cache entry, and reloads. **No version to bump.** It reloads only while the gate is untouched, so an update never interrupts a deck mid-use; if he is busy, the cache is already new for next launch. Downloading before replacing means a dropped signal never leaves him with no offline copy. `tools/dev-server.mjs` now sends `ETag`/`Last-Modified` and answers HEAD, so the check works (and is testable) locally. Covered by `tests/update.spec.js`; 4 of its 6 skip on WebKit, which drops Cache Storage on reload over http — a harness limit, not the app. |
 | Phone layout (2026-09-18) | The copy takes its natural height and the court fills the rest: `.stage{flex:1 1 auto;min-height:40svh}`. It replaced `min-height:calc(100svh - 150px)`, whose 150px covered only the bar (46) and nav (58) — so a 185px copy block sat under the sticky nav with a **36px peek**, and because it was a constant, a taller phone gave every extra pixel to the court and none to the text. Now nothing scrolls on any court card. Court is 66 % of an iPhone 16 Pro (402×874) and 40 % of a 360×640, the tightest shipped. The oath and routine cards still flow and scroll, by design. |
 | 5 Laws | `module-d.js` from `references/5_laws_percentage_tennis.txt` (extracted from the PDF with pypdf). Five cards: crosscourt geometry (with a disclaimer that the Directionals decide change of direction), margins (two steps: the air over the net in side view, then the margins measured against their lines), spin, the invitation (two animated steps: dragged to the alley, then recover to the hash mark), your sword. Spin is card D5 and sits after the margins card, not in the book's numbering: it is what pays for the clearance D2 asks for. |
 
