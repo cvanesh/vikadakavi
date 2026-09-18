@@ -1,12 +1,25 @@
 # Progress
 
-**Updated:** 2026-09-17 · **Phase 1 on hold (owner's call)** · 155 tests green · **Contents + The oath (2) + Directionals (16) + Between points (1) + 5 Laws (5)** · nothing pushed.
+**Updated:** 2026-09-18 · **LIVE** at https://cvanesh.github.io/vikadakavi/ · 155 tests green · **Contents + The oath (2) + Directionals (16) + Between points (1) + 5 Laws (5)**.
 
-**Session ended 2026-09-17 with everything committed and green.** Last commits:
-`Measure the margins on card 21 and hold back the opening on card 22`, then
-`Add the spin card, and let the player pace the steps`, then
-`Set off confetti when an oath is finished`. Next session starts at
-**Pick up here** below.
+## Published 2026-09-18
+
+Public repo `cvanesh/vikadakavi`, GitHub Pages via Actions, verified live
+(HTTP 200, real payload, no `t:1` stamp).
+
+**`main` is a single root commit, deliberately.** The earlier 35 commits were
+never pushed: nine of them carried `/references/` (the copyrighted PDFs,
+including `Pressure-Tennis.pdf`) in their tree, and every one carried a
+test-passphrase payload that anyone could decrypt with `test`. Both are
+disqualifying for a public repo. The old history is kept locally on branch
+**`history-local`** — **never push it, and never `git push --all`.**
+
+The remote is SSH (`git@github.com:cvanesh/vikadakavi.git`); the stored HTTPS
+keychain credential is a dead password and fails.
+
+⚠ **The live payload predates the 2026-09-18 mobile layout fix.** Shipping it
+needs `npm run build` with the real passphrase (owner only, hidden prompt, in a
+real terminal — the build tool needs a TTY), then commit and push.
 
 Read `VISION.md` for the locked decisions and `TRACEABILITY.md` for goal
 coverage. This file is the running state: what exists, what is next, what is
@@ -66,13 +79,19 @@ edit the script → `npm run scripts` → build → screenshot only that card �
 | Tests | 134 across 3 devices, incl. `deck.spec.js`: every card draws and fits, rally stepping, Why panel stickiness, replay resets the pose, runners move, oath ticks, topic tiles. |
 | Sections (2026-09-17) | Deck is **24 cards in four sections**: The oath (2) → Directionals (16) → Between points (1) → 5 Laws (5). The contents card leads with a tappable topic tile per section (icon, blurb, card count), then the full list. |
 | The oath | `module-e.js`, copied from the tennis-oath app: player and parent oaths, 12 lines each, a box to tick per line, an in-memory counter. No streaks, no signing, nothing stored. Keeps the source emoji — the owner's exception to the no-emoji rule. |
+| Phone layout (2026-09-18) | The copy takes its natural height and the court fills the rest: `.stage{flex:1 1 auto;min-height:40svh}`. It replaced `min-height:calc(100svh - 150px)`, whose 150px covered only the bar (46) and nav (58) — so a 185px copy block sat under the sticky nav with a **36px peek**, and because it was a constant, a taller phone gave every extra pixel to the court and none to the text. Now nothing scrolls on any court card. Court is 66 % of an iPhone 16 Pro (402×874) and 40 % of a 360×640, the tightest shipped. The oath and routine cards still flow and scroll, by design. |
 | 5 Laws | `module-d.js` from `references/5_laws_percentage_tennis.txt` (extracted from the PDF with pypdf). Five cards: crosscourt geometry (with a disclaimer that the Directionals decide change of direction), margins (two steps: the air over the net in side view, then the margins measured against their lines), spin, the invitation (two animated steps: dragged to the alley, then recover to the hash mark), your sword. Spin is card D5 and sits after the margins card, not in the book's numbering: it is what pays for the clearance D2 asks for. |
 
 ## Pick up here (next session)
 
-Nothing is half-finished — the tree is clean, 152 tests pass, `npm run scripts`
-is green for every module. Start with whichever of these the owner wants:
+**First thing: rebuild and ship the mobile layout fix** (see below) — it is
+committed in `src/` but not in the live payload.
 
+Then whichever of these the owner wants:
+
+0. **Owner walks the deck on the phone** now that it is live, and reports cards
+   by number. Worth watching whether the court at 40 % of a 360×640 screen
+   still reads; on his iPhone 16 Pro it is 66 %.
 1. **Owner walks the deck in the browser** and reports cards by number. The new
    pacing means he now has to move every step himself: arrow keys, a swipe, or a
    tap on the step counter. Worth watching whether that reads as obvious on the
@@ -118,15 +137,17 @@ does not work); returns get two cards; zones drawn as in fig 4.1.
 
 ## Waiting on the owner
 
-1. **Real passphrase.** `npm run build`, then commit `dist/payload.enc.js`.
-   Today's committed payload is the **test** one; `npm run check` correctly
-   refuses it. The test passphrase is published in `tools/encrypt.mjs`, so that
-   payload is readable by anyone once the repo is public.
-2. **GitHub repo** `cvanesh/vikadakavi`, Pages enabled via Actions.
-3. **Push** — never without explicit confirmation.
-4. **Verify live** on the phone. Phase 1 closes only then.
-5. **Text for the remaining sources** — see "Reference material" in `CLAUDE.md`.
-6. **Coach review** of `dev-tools/artifacts/scripts/module-a.md` — 14 scripts plus
+1. ~~Real passphrase~~ · ~~GitHub repo~~ · ~~Push~~ · ~~Verify live~~ — **all done
+   2026-09-18.** The passphrase lives only in the owner's head; every rebuild
+   needs him at a real terminal.
+2. **Rebuild and ship the phone layout fix.** `npm run build` (real passphrase),
+   commit `dist/payload.enc.js`, push. Tests are already green — no need for
+   `npm run ship`, which would only re-run them and prompt again.
+3. **Walk the live deck on the phone**: unlock, airplane mode, Add to Home
+   Screen. Standalone mode adds `env(safe-area-inset-top)` (~59 px on a
+   Dynamic Island phone) that browser testing does not show.
+4. **Text for the remaining sources** — see "Reference material" in `CLAUDE.md`.
+5. **Coach review** of `dev-tools/artifacts/scripts/module-a.md` — 14 scripts plus
    8 questions. Cheaper to fix in text than in 14 finished scenes.
 
 ## Open questions

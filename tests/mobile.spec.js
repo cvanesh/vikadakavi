@@ -32,16 +32,32 @@ test.describe('mobile shell', () => {
     expect(court.y + court.height).toBeLessThanOrEqual(viewport.height + 1);
   });
 
-  test('on a 360×640 phone the court keeps the room and the nav stays pinned', async ({ page, isMobile }) => {
+  // The copy takes its natural height and the court fills the rest (owner,
+  // 2026-09-18), so the whole card reads without scrolling. Before this, the
+  // stage was pinned to `100svh - 150px` and the headline sat under the nav.
+  test('on a 360×640 phone the whole card reads without scrolling', async ({ page, isMobile }) => {
     test.skip(!isMobile, 'phone layout only');
     await page.setViewportSize({ width: 360, height: 640 });
     await showCard(page, 'A9');
-    const court = await page.locator('.court-in').boundingBox();
-    expect(court.height / 640, 'baseline to baseline').toBeGreaterThan(0.6);
-    await page.locator('#source').scrollIntoViewIfNeeded();
-    await expect(page.locator('#source')).toBeInViewport();
+
+    // No scrollIntoView: the point is that every part is already on screen.
+    for (const sel of ['h2', '.cue', '#source']) {
+      await expect(page.locator(sel), `${sel} on screen`).toBeInViewport();
+    }
+    // The sticky nav must not cover the last line of copy.
+    const source = await page.locator('#source').boundingBox();
     const nav = await page.locator('.nav').boundingBox();
-    expect(nav.y + nav.height).toBeLessThanOrEqual(641);
+    expect(source.y + source.height, 'source clears the nav').toBeLessThanOrEqual(nav.y + 1);
+    expect(nav.y + nav.height, 'nav stays pinned').toBeLessThanOrEqual(641);
+
+    // The court still owns the largest share of the card — it just no longer
+    // takes the space the copy needs. 0.40 on this screen, the tightest we ship.
+    const court = await page.locator('.court-in').boundingBox();
+    expect(court.height / 640, 'baseline to baseline').toBeGreaterThan(0.35);
+
+    // Nothing overflows: the page itself does not scroll.
+    const overflow = await page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight);
+    expect(overflow, 'page does not scroll').toBeLessThanOrEqual(0);
   });
 
   test('every control clears a 44px tap target', async ({ page }) => {
