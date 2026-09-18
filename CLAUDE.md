@@ -60,7 +60,7 @@ before any destructive git operation.**
 | `npm run build` | Bundle + encrypt → `dist/payload.enc.js` (prompts for passphrase) |
 | `npm test` | Playwright suite against the built, encrypted app |
 | `npm run visual` | Screenshot sweep → `dev-tools/artifacts/visual/` |
-| `npm run scripts` | Verify card scripts in `src/content/scripts/` → review doc in `dev-tools/artifacts/scripts/` |
+| `npm run scripts` | Verify card scripts in `src/content/scripts/` → review doc in `dev-tools/artifacts/scripts/`. Defaults to `module-a`; pass `-- module-b` etc. for the others |
 | `npm run backup` | Mirror `src/` + `references/` into `../vikadakavi-src` (local git, never pushed) |
 | `npm run ship` | test → build → verify. The real pre-commit gate. |
 
@@ -72,6 +72,8 @@ only verifies `dist/payload.enc.js` and publishes. Never claim a change is
 
 - **Aim for ~30 cards, ~5 minutes total.** A soft target since 2026-09-16 — the owner
   allows going over for now. Every card still has to earn its ~10 seconds.
+  **The deck is at 29 + contents as of 2026-09-18, so the ceiling is reached:**
+  a new card displaces one, or the owner lifts the limit. `cards.js` only warns.
 - **Mobile first, 390 px portrait** is the design target; desktop is secondary.
 - **Offline after first unlock.** Service worker caches the shell + payload.
 - **Right-handed, one-handed backhand** reference frame. All court geometry must
@@ -81,6 +83,23 @@ only verifies `dist/payload.enc.js` and publishes. Never claim a change is
 - Icons are inline SVG, `currentColor`-driven. **No emoji in UI** — with one
   exception (owner, 2026-09-17): the oath cards keep the per-line emoji copied
   from the tennis-oath app, so the two apps read as one ritual.
+
+## Charts must not need explaining
+
+Section B (`The hidden math`) draws numbers instead of courts, via
+`src/app/bars.js`. Two rules, both learned by shipping the mistake:
+
+- **Never put a single derived statistic on a bar.** A leverage of `0.46` was
+  read as "you have a 46% chance", which is wrong — it is the *swing* between
+  88% if you win the point and 42% if you lose it. Draw both ends of a range, or
+  a count of something real ("1 double fault in every 25 service points"), and
+  let the length of the bar carry the magnitude.
+- **Check what the chart implies, not just whether the numbers are right.**
+  64.8% against 63.0% drawn on the same axis as 4% against 16% was accurate in
+  every value and argued the exact opposite of the card it sat on.
+
+If a card cannot answer "so what does that mean for me?" in one sentence, it is
+not finished.
 
 ## The content doctrine — do not improvise it
 
@@ -131,7 +150,7 @@ Shipping a derived image inside the encrypted payload needs the owner's explicit
 | --- | --- |
 | `High-Percentage Tactics.md` | Book text, ch. 3–4. **The** source for Module A. Figures indexed in `docs/FIGURES.md`. Untracked — do not commit. |
 | `paul_waldrow_directonals.txt` | Secondary summary. Quote the book instead. |
-| `tennis-math-guide.md` | Text. Source for Module B; leverage table at p=0.6. |
+| `tennis-math-guide.md` | Text. Source for Module B, **built and shipped 2026-09-18**. The leverage table at p=0.6 gives hold-chance-if-won and if-lost per score; cards B2 quotes both columns, never the derived leverage alone. |
 | `between_point_routine.md` | Text. Four stages — REACT, RECOVER, PREPARE, RITUAL. Use this, not the "three Rs" from the original brief. |
 | `5_Laws_Percentage_Tennis.pdf` | Text-extractable. Crosscourt geometry, law of margins. |
 | `Pressure-Tennis.pdf` | **Scanned, rotated 180°.** No text layer. Page images extract as JPEGs (DCTDecode) and contain court diagrams worth using as visual reference. Owner is providing text. |

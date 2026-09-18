@@ -15,7 +15,8 @@ not "should work". Update this alongside `PROGRESS.md`.
 | P5 | Security | **Done** | `index.html` | Passphrase never stored; payload nulled after unlock; `gate.spec.js` |
 | P6 | Speed | **Partial** | — | Bundle 35.9 KB; PBKDF2 310k ≈ 0.5 s unlock. Not yet measured on a real phone |
 | P7 | Separate app from tennis-oath | **Done** | own repo/scope | By construction |
-| P8 | Works offline after first unlock | **Partial** | `sw.js` | Registered and serving live; the airplane-mode walk on the phone is still the owner's to do |
+| P8 | Works offline after first unlock | **Partial** | `sw.js` | Registered and serving live; the airplane-mode walk on the phone is still the owner's to do. An installed copy needs no cache-version bump — `index.html` compares ETags at startup |
+| P9 | Shell: where you are, and how to get elsewhere | **Done** | `main.js`, `app.css` | Section + position centred (`5 Laws 3/5`), one overall progress line, Home button to the contents. `mobile.spec.js` covers the line's fraction, Home, and that the deck stops at both ends |
 
 ## Content — Directionals (brief item a)
 
@@ -82,8 +83,8 @@ Deployed and live since 2026-09-18; not yet walked on the owner's phone.
 
 | ID | Requirement | Status | Evidence |
 | --- | --- | --- | --- |
-| Q1 | ~5 minutes (soft since 2026-09-16) | **Partial** | Elapsed clock; `cards.js` and `npm run scripts` warn past 30 cards / module budget; untested with a full deck |
-| Q2 | ~10 seconds per card | **Partial** | Design target; nothing advances on a timer. Arrow keys and swipes move one step, then on to the next card; the nav arrows move a whole card; the step counter is a button (owner, 2026-09-17) |
+| Q1 | ~5 minutes (soft since 2026-09-16) | **Partial** | Elapsed clock, now dimmed at the bar's right edge; `cards.js` and `npm run scripts` warn past 30 cards / module budget. **The deck is at 29 + contents, so the ceiling is reached** — a new card displaces one. Still never timed by the owner end to end |
+| Q2 | ~10 seconds per card | **Partial** | Design target; nothing advances on a timer. Arrow keys and swipes move one step, then on to the next card, and stop at both ends of the deck (owner, 2026-09-18); the nav arrows move a whole card; the step counter is a button (owner, 2026-09-17) |
 | Q3 | Strict Playwright testing | **Done** | 181 tests, 6 spec files, 3 devices |
 | Q4 | Mobile rendering verified | **Done** | Pixel 5 + iPhone 13 projects |
 | Q5 | Incremental phases, gate at 100% | **Done (process)** | `VISION.md` §Phasing; Phase 1 still open |
@@ -104,10 +105,10 @@ under `UNCOVERED` and deliberately have no card.
 | ID | Requirement | Status | Card |
 | --- | --- | --- | --- |
 | M1 | The amplifier — 55% of points is ~91% of matches | **Built** | B1, bars |
-| M2 | Leverage — the ladder of scores, deuce and 30–30 at 0.46 | **Built** | B2 step 1 |
-| M3 | Break point at 0.69, and why it beats deuce for any server over 50% | **Built** | B2 step 2 |
+| M2 | Leverage — how much a point is worth, by score | **Built** | B2. Drawn as spans between the two outcomes (lose this point → win it), never as a bare leverage number: the owner read `0.46` as "a 46% chance", which is wrong. Step 1 is the cheap end, step 2 the two that decide the game |
+| M3 | Break point is the biggest point, and beats deuce for any server over 50% | **Built** | B2 step 2 — 0% → 69% |
 | M4 | Play the hinge scores differently: bigger target, more clearance | **Built** | B3, court. Both balls still obey the Directionals — an outside ball goes back the way it came — so what separates them is where they land, not their direction |
-| M5 | Two risky serves is the losing bet | **Built** | B4, bars |
+| M5 | Two risky serves is the losing bet | **Built** | B4. Double faults counted out of 25 service points (1 vs 4), not as 4% and 16%; the `(lands × wins)` rule is stated in words, not drawn |
 | M6 | Serve as a guessing game — mix wide and T | **Built** | B5, court |
 
 Nothing here overrides the Directionals. B3 is the only card that touches shot
