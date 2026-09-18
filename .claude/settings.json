@@ -1,5 +1,8 @@
 {
   "permissions": {
-    "allow": ["Bash(sed:*)"]
+    "allow": [
+      "Bash(sed:*)",
+      "Bash(VIKADAKAVI_PASSPHRASE=test npm run build)"
+    ]
   }
 }

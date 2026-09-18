@@ -170,6 +170,21 @@ does not work); returns get two cards; zones drawn as in fig 4.1.
    `references/` to `../vikadakavi-src`, but that is local git only — a disk
    failure still loses every gitignored source file.
 
+## Backlog
+
+- **"Step back to return a faster serve — when you are framing it."** Owner,
+  2026-09-18. This is C24, and the trigger he wants is the player's own feel
+  (framing the ball), not the server's speed. No text in `references/` supports
+  it, so it needs his words or his coach's before it can be a card. Revisit later.
+- **C29 is closed.** Owner, 2026-09-18: card B3 covers it, so the deferred
+  Prepare-questions card is not wanted.
+- **Add to `.claude/settings.json`** (the owner does this; the classifier blocks
+  Claude from writing its own permissions):
+  `"Bash(VIKADAKAVI_PASSPHRASE=test npm run build)"` in `permissions.allow`,
+  alongside the existing `"Bash(sed:*)"`. Without it every test build prompts,
+  because an env-var prefix outside the safe list cannot be checked against the
+  read block. Takes effect without a restart.
+
 ## Open questions
 
 - In-app title — is it "Vikadakavi"?

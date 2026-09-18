@@ -56,9 +56,9 @@ Deployed and live since 2026-09-18; not yet walked on the owner's phone.
 | C21 | Small consistent edges: 55% of points ≈ 90% of matches | **Built** | B1 |
 | C22 | Second serve — two risky serves is the losing bet | **Built** | B4 |
 | C23 | Serve direction — mix wide and T | **Built** | B5 |
-| C24 | Fast server → step back to return, recover to baseline | **Blocked** | Owner's brief only. Nothing in `references/` to quote, so it has no card — a coach question on the Module B review page |
+| C24 | Fast server → step back to return, recover to baseline | **Backlog** | Owner, 2026-09-18: the trigger is "when you are framing it", not the server's speed. Nothing in `references/` to quote — needs his words first. See the backlog in `PROGRESS.md` |
 | C25 | Stay calm — the between-point routine | **Built** | C1: the routine file as a strict protocol — four steps, reset cue, breathing, what winning the routine looks like. Only that file (owner, 2026-09-17) |
-| C29 | Prepare questions: score / who is under pressure; 30–30 or deuce → play high percentage | **Deferred** | Owner's custom rule, for a later separate card — kept off C1 |
+| C29 | Prepare questions: score / who is under pressure; 30–30 or deuce → play high percentage | **Covered by B3** | Owner, 2026-09-18: B3 says it, so no separate card is wanted. Closed |
 | C26 | Sanctity of court, balls, equipment — never kick a ball | Planned | owner's brief |
 | C27 | Smile and shake hands whatever the score | Planned | owner's brief |
 | C28 | Percentage tennis — crosscourt geometry, law of margins | Planned | `5_Laws_Percentage_Tennis.pdf` |

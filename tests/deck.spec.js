@@ -72,10 +72,13 @@ test.describe('Module A deck', () => {
     // move from the first to the second.
     await unlock(page);
     await showCard(page, 'B2');
+    // Step 1 is the cheap end of the ladder, step 2 the two that decide the game.
     const lit = () => page.locator('.bars li[data-dim="false"] .bars-label').allTextContents();
-    expect(await lit()).toEqual(['30–30 · deuce']);
+    expect(await lit()).toEqual(['30–0', '40–0']);
     await page.click('#step');
-    await expect.poll(lit).toEqual(['30–40 · break point']);
+    await expect.poll(lit).toEqual(['30–40 · break point', '30–30 · deuce']);
+    // The numbers on the bars are the same units the card's words use.
+    await expect(page.locator('.bars-value').first()).toHaveText('69');
     // Break point is drawn longer than deuce, because 0.69 beats 0.46.
     await expect(page.locator('[data-scene-state="done"]')).toHaveCount(1, { timeout: 15_000 });
     const width = (n) => page.locator('.bars-track i').nth(n).boundingBox().then((b) => b.width);
