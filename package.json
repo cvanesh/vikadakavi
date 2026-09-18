@@ -1,0 +1,22 @@
+{
+  "name": "vikadakavi",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Pre-match tactical refresher PWA",
+  "scripts": {
+    "dev": "node tools/dev-server.mjs",
+    "bundle": "node tools/build.mjs",
+    "build": "node tools/build.mjs && node tools/encrypt.mjs",
+    "test": "playwright test",
+    "check": "node tools/check-payload.mjs",
+    "ship": "npm test && npm run build && npm run check",
+    "visual": "node tools/visual-review.mjs",
+    "scripts": "node tools/check-scripts.mjs",
+    "backup": "node tools/backup-src.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "esbuild": "^0.24.0"
+  }
+}

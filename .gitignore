@@ -1,0 +1,23 @@
+# PLAINTEXT — never commit. /src/ is backed up outside the repo.
+/src/
+/dist/bundle.js
+
+# dist/payload.enc.js IS committed on purpose: it is the ciphertext the site serves.
+
+# Copyrighted source material — never published. See CLAUDE.md.
+/references/
+
+# Secrets
+.env
+*.passphrase
+
+# Build/test output
+/node_modules/
+/test-results/
+/playwright-report/
+/dev-tools/artifacts/
+/.playwright-mcp/
+/snapshots/
+
+# OS
+.DS_Store

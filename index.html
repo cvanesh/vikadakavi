@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Vikadakavi</title>
+<meta name="description" content="Pre-match tactical refresher.">
+<meta name="theme-color" content="#0b3d1f">
+<meta name="robots" content="noindex,nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<style>
+  :root{
+    --ink:#0b3d1f; --ink-2:#12572c; --clay:#c86a3a;
+    --paper:#f7f8f4; --line:rgba(255,255,255,.22); --err:#ffb4a8;
+    --pad:max(20px,env(safe-area-inset-left));
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--ink);color:var(--paper);
+    font:400 16px/1.5 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased;overscroll-behavior:none}
+  #gate{min-height:100svh;display:grid;place-items:center;
+    padding:calc(var(--pad) + env(safe-area-inset-top)) var(--pad)
+            calc(var(--pad) + env(safe-area-inset-bottom));
+    background:radial-gradient(120% 90% at 50% 0%,var(--ink-2) 0%,var(--ink) 62%)}
+  .card{width:100%;max-width:23rem;text-align:center}
+  .mark{width:64px;height:64px;margin:0 auto 22px;display:block;color:var(--paper);opacity:.95}
+  h1{margin:0 0 6px;font-size:1.6rem;font-weight:650;letter-spacing:-.015em}
+  .sub{margin:0 0 30px;font-size:.88rem;opacity:.62}
+  form{display:grid;gap:12px}
+  input{width:100%;padding:15px 16px;font-size:16px;color:var(--paper);
+    background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:12px;
+    text-align:center;letter-spacing:.14em;
+    transition:border-color .18s ease,background .18s ease}
+  input::placeholder{letter-spacing:normal;opacity:.45;color:var(--paper)}
+  input:focus{outline:none;border-color:rgba(255,255,255,.62);background:rgba(255,255,255,.11)}
+  button{width:100%;padding:15px 16px;font:inherit;font-weight:620;font-size:1rem;
+    color:var(--ink);background:var(--paper);border:0;border-radius:12px;cursor:pointer;
+    transition:transform .12s ease,opacity .18s ease}
+  button:active{transform:scale(.985)}
+  button[disabled]{opacity:.55;cursor:default}
+  .msg{min-height:1.3em;margin:4px 0 0;font-size:.83rem;color:var(--err)}
+  .foot{margin-top:30px;font-size:.72rem;opacity:.38;letter-spacing:.03em}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<main id="gate">
+  <div class="card">
+    <svg class="mark" viewBox="0 0 48 48" fill="none" stroke="currentColor"
+         stroke-width="2.1" stroke-linecap="round" aria-hidden="true">
+      <circle cx="24" cy="24" r="18"/>
+      <path d="M9.5 12.5C16 18 18.5 28.5 15 40.5"/>
+      <path d="M38.5 12.5C32 18 29.5 28.5 33 40.5"/>
+    </svg>
+    <h1>Vikadakavi</h1>
+    <p class="sub">Five minutes before you walk on.</p>
+    <form id="unlock" autocomplete="off">
+      <input id="pass" type="password" inputmode="text" placeholder="Passphrase"
+             autocomplete="current-password" aria-label="Passphrase" required>
+      <button id="go" type="submit">Unlock</button>
+      <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    </form>
+    <p class="foot">Encrypted. Nothing is stored on this device.</p>
+  </div>
+</main>
+
+<script src="dist/payload.enc.js"></script>
+<script>
+(() => {
+  const form = document.getElementById('unlock');
+  const pass = document.getElementById('pass');
+  const go   = document.getElementById('go');
+  const msg  = document.getElementById('msg');
+
+  const b64 = (s) => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+
+  async function decrypt(payload, passphrase) {
+    const raw  = b64(payload.data);
+    const salt = raw.subarray(0, 16);
+    const iv   = raw.subarray(16, 28);
+    const body = raw.subarray(28);
+    const material = await crypto.subtle.importKey(
+      'raw', new TextEncoder().encode(passphrase), 'PBKDF2', false, ['deriveKey']);
+    const key = await crypto.subtle.deriveKey(
+      { name:'PBKDF2', salt, iterations: payload.iter, hash:'SHA-256' },
+      material, { name:'AES-GCM', length:256 }, false, ['decrypt']);
+    const out = await crypto.subtle.decrypt({ name:'AES-GCM', iv }, key, body);
+    return new TextDecoder().decode(out);
+  }
+
+  function run(code) {
+    const url = URL.createObjectURL(new Blob([code], { type:'text/javascript' }));
+    const el = document.createElement('script');
+    el.src = url;
+    el.onload = () => URL.revokeObjectURL(url);
+    document.body.appendChild(el);
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!window.PAYLOAD) { msg.textContent = 'Payload missing. Rebuild the app.'; return; }
+    if (!crypto?.subtle) { msg.textContent = 'This browser needs a secure (https) connection.'; return; }
+
+    go.disabled = true; go.textContent = 'Unlocking'; msg.textContent = '';
+    await new Promise(r => requestAnimationFrame(() => setTimeout(r, 0)));
+
+    let code;
+    try {
+      code = await decrypt(window.PAYLOAD, pass.value);
+    } catch {
+      msg.textContent = 'Wrong passphrase.';
+      go.disabled = false; go.textContent = 'Unlock';
+      pass.value = ''; pass.focus();
+      return;
+    }
+
+    pass.value = '';
+    window.PAYLOAD = null;
+    document.getElementById('gate').remove();
+    run(code);
+  });
+
+  pass.focus();
+
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  }
+})();
+</script>
+</body>
+</html>

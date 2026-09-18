@@ -1,0 +1,51 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+# The plaintext app lives only on the operator's machine (see docs/VISION.md),
+# so CI cannot build or test it — there is no /src/ here to build from. CI
+# verifies the committed ciphertext and publishes it. The test suite is the
+# operator's gate, run by `npm run ship` before committing a new payload.
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # Fails the deploy if the payload is missing, malformed, or was built
+      # with the test passphrase.
+      - name: Verify payload
+        run: node tools/check-payload.mjs
+
+      # Publish only what the app needs at runtime. Docs, tests, tools and the
+      # source silhouettes stay out of the deployed site.
+      - name: Assemble site
+        run: |
+          mkdir -p _site/dist
+          cp index.html manifest.json sw.js _site/
+          cp dist/payload.enc.js _site/dist/
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deploy
+        uses: actions/deploy-pages@v4

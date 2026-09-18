@@ -1,0 +1,26 @@
+{
+  "name": "Vikadakavi",
+  "short_name": "Vikadakavi",
+  "description": "Pre-match tactical refresher: directionals, point value, court craft.",
+  "start_url": "/vikadakavi/",
+  "scope": "/vikadakavi/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b3d1f",
+  "theme_color": "#0b3d1f",
+  "categories": ["sports", "education"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='44' fill='%230b3d1f'/><g fill='none' stroke='%23f7f8f4' stroke-width='9' stroke-linecap='round'><circle cx='96' cy='96' r='58'/><path d='M49 52c21 18 29 52 18 90'/><path d='M143 52c-21 18-29 52-18 90'/></g></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' fill='%230b3d1f'/><g fill='none' stroke='%23f7f8f4' stroke-width='8' stroke-linecap='round'><circle cx='96' cy='96' r='44'/><path d='M60 63c16 14 22 40 14 68'/><path d='M132 63c-16 14-22 40-14 68'/></g></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
