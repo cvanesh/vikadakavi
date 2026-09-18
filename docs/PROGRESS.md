@@ -1,6 +1,6 @@
 # Progress
 
-**Updated:** 2026-09-18 · **LIVE** at https://cvanesh.github.io/vikadakavi/ · 155 tests green · **Contents + The oath (2) + Directionals (16) + Between points (1) + 5 Laws (5)**.
+**Updated:** 2026-09-18 · **LIVE** at https://cvanesh.github.io/vikadakavi/ · 181 tests green · **Contents + The oath (2) + Directionals (16) + Between points (1) + 5 Laws (5) + The hidden math (5)**.
 
 ## Published 2026-09-18
 
@@ -86,12 +86,24 @@ edit the script → `npm run scripts` → build → screenshot only that card �
 | The oath | `module-e.js`, copied from the tennis-oath app: player and parent oaths, 12 lines each, a box to tick per line, an in-memory counter. No streaks, no signing, nothing stored. Keeps the source emoji — the owner's exception to the no-emoji rule. |
 | Self-updating cache (2026-09-18) | `sw.js` serves cache-first under a fixed `vk-v1`, so a deploy used to sit unseen until the second launch. `index.html` now compares validators at startup — a HEAD on `./` and the payload (the worker passes non-GET straight out), ETag against the cached response — and if they differ it downloads, replaces the cache entry, and reloads. **No version to bump.** It reloads only while the gate is untouched, so an update never interrupts a deck mid-use; if he is busy, the cache is already new for next launch. Downloading before replacing means a dropped signal never leaves him with no offline copy. `tools/dev-server.mjs` now sends `ETag`/`Last-Modified` and answers HEAD, so the check works (and is testable) locally. Covered by `tests/update.spec.js`; 4 of its 6 skip on WebKit, which drops Cache Storage on reload over http — a harness limit, not the app. |
 | Phone layout (2026-09-18) | The copy takes its natural height and the court fills the rest: `.stage{flex:1 1 auto;min-height:40svh}`. It replaced `min-height:calc(100svh - 150px)`, whose 150px covered only the bar (46) and nav (58) — so a 185px copy block sat under the sticky nav with a **36px peek**, and because it was a constant, a taller phone gave every extra pixel to the court and none to the text. Now nothing scrolls on any court card. Court is 66 % of an iPhone 16 Pro (402×874) and 40 % of a 360×640, the tightest shipped. The oath and routine cards still flow and scroll, by design. |
+| The hidden math (2026-09-18) | `module-b.js` from `references/tennis-math-guide.md` (plus the 5 Laws text, which B3 also quotes). Five cards: the amplifier (B1), leverage (B2, two steps), the hinge (B3), the second serve (B4), the serve mix (B5). Three of them are numbers rather than geometry, so they use a new `bars` view (`src/app/bars.js`) — rows to a shared scale, grown in turn, with a named group lit per step. B3 and B5 stay on the court. Deck is 29 cards + contents, at the 30 ceiling. |
+| Shell (2026-09-18, owner) | The top bar was a module name, a deck count, a row of tappable marks and a clock. It is now **the section and the position inside it, centred** (`5 Laws 3/5` — so he can see what is left of the section), with **one unbroken progress line** underneath for position in the whole deck (22/29 there), and the clock dimmed out at the right edge. The marks are gone, so jumping between sections moved to a **Home button** in the nav, which returns to the contents; the nav is five buttons and still clears 44px on a 360px screen. |
+| End of deck (2026-09-18, owner) | A right arrow or a swipe on the last card used to re-render that card, which read as the deck going backwards. `go()` now refuses to move past either end instead of letting `render` clamp. Arrows and swipes still move a step at a time and roll into the next card, unchanged. |
 | 5 Laws | `module-d.js` from `references/5_laws_percentage_tennis.txt` (extracted from the PDF with pypdf). Five cards: crosscourt geometry (with a disclaimer that the Directionals decide change of direction), margins (two steps: the air over the net in side view, then the margins measured against their lines), spin, the invitation (two animated steps: dragged to the alley, then recover to the hash mark), your sword. Spin is card D5 and sits after the margins card, not in the book's numbering: it is what pays for the clearance D2 asks for. |
 
 ## Pick up here (next session)
 
-**First thing: rebuild and ship the mobile layout fix** (see below) — it is
-committed in `src/` but not in the live payload.
+**Everything committed is shipped.** The live payload's SHA-256 matches
+`dist/payload.enc.js` byte for byte, and `main` is level with `origin/main`
+(checked 2026-09-18). Nothing is pending on the build or deploy side.
+
+**Module B is built and green, waiting on owner review.** Five cards, every
+quote verbatim, 181 tests passing, screenshots swept. Read the scripts beside
+the source first — `npm run scripts -- module-b`, then the review page. It
+carries **three questions for the owner** (see `COACH_QUESTIONS` in
+`src/content/scripts/module-b.js`), the sharpest being whether C24 — against a
+fast server, step back to return — is wanted at all, since it comes from the
+owner's brief and has no text in `references/` to quote.
 
 Then whichever of these the owner wants:
 
@@ -109,9 +121,9 @@ Then whichever of these the owner wants:
    around it. Raising `LIFT` in `sideview.js` (currently 3× vertical
    exaggeration) would make it taller and is the one lever left — it changes how
    steep every side-view flight looks, so it is the owner's call.
-4. **The items under "Waiting on the owner"** below are unchanged: real
-   passphrase, GitHub repo, push, verify live, remaining source texts, coach
-   review of the Module A scripts.
+4. **The items under "Waiting on the owner"** below: the phone walk, the
+   remaining source texts, the coach review of the Module A scripts, the
+   open questions, and a private remote for the backup repo.
 
 ## Next action — Module A content (Phase 1 on hold, owner's call)
 
@@ -146,15 +158,17 @@ does not work); returns get two cards; zones drawn as in fig 4.1.
 1. ~~Real passphrase~~ · ~~GitHub repo~~ · ~~Push~~ · ~~Verify live~~ — **all done
    2026-09-18.** The passphrase lives only in the owner's head; every rebuild
    needs him at a real terminal.
-2. **Rebuild and ship the phone layout fix.** `npm run build` (real passphrase),
-   commit `dist/payload.enc.js`, push. Tests are already green — no need for
-   `npm run ship`, which would only re-run them and prompt again.
+2. ~~Rebuild and ship the phone layout fix~~ — **done 2026-09-18**, live payload
+   verified against the local build.
 3. **Walk the live deck on the phone**: unlock, airplane mode, Add to Home
    Screen. Standalone mode adds `env(safe-area-inset-top)` (~59 px on a
    Dynamic Island phone) that browser testing does not show.
 4. **Text for the remaining sources** — see "Reference material" in `CLAUDE.md`.
 5. **Coach review** of `dev-tools/artifacts/scripts/module-a.md` — 14 scripts plus
    8 questions. Cheaper to fix in text than in 14 finished scenes.
+6. **A private remote for the backup repo.** `npm run backup` commits `src/` +
+   `references/` to `../vikadakavi-src`, but that is local git only — a disk
+   failure still loses every gitignored source file.
 
 ## Open questions
 

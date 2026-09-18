@@ -92,8 +92,8 @@ test.describe('mobile shell', () => {
 
   test('the deck opens on the contents, then walks card by card', async ({ page }) => {
     await expect(page.locator('body')).toHaveAttribute('data-card', 'contents');
-    await expect(page.locator('.dot')).toHaveCount(25);
-    await expect(page.locator('.dot-gap')).toHaveCount(4);        // contents | oath | directionals | between points | 5 laws
+    await expect(page.locator('.track')).toBeVisible();
+    await expect(page.locator('#trackFill')).toHaveCSS('width', '0px');   // nothing of the deck read yet
     await expect(page.locator('#prev')).toBeDisabled();
     await expect(page.locator('#why')).toBeDisabled();
     await page.click('#next');
@@ -104,11 +104,12 @@ test.describe('mobile shell', () => {
   test('a title in the contents jumps to its card', async ({ page }) => {
     await page.locator('.contents button', { hasText: 'Same four steps' }).click();
     await expect(page.locator('body')).toHaveAttribute('data-card', 'C1');
-    await expect(page.locator('#count')).toHaveText('19/24');
+    await expect(page.locator('#module')).toHaveText('Between points');
+    await expect(page.locator('#count')).toHaveText('1/1');      // its position in its own section
   });
 
   test('a topic tile jumps to the first card of that section', async ({ page }) => {
-    await expect(page.locator('.topic')).toHaveCount(4);
+    await expect(page.locator('.topic')).toHaveCount(5);
     await page.locator('.topic', { hasText: '5 Laws' }).click();
     await expect(page.locator('body')).toHaveAttribute('data-card', 'D1');
   });
@@ -154,10 +155,38 @@ test.describe('mobile shell', () => {
     }
   });
 
-  test('a mark in the progress bar jumps to its card', async ({ page }) => {
-    await page.locator('.dot[data-card="A5"]').click();
-    await expect(page.locator('body')).toHaveAttribute('data-card', 'A5');
-    await expect(page.locator('.dot[data-card="A5"]')).toHaveAttribute('aria-current', '');
+  test('the progress line tracks position in the whole deck, not the section', async ({ page }) => {
+    // 5 Laws card 3 is deck position 22: 2 oath + 16 directionals + 1 between points + 3.
+    await showCard(page, 'D5');
+    await expect(page.locator('#module')).toHaveText('5 Laws');
+    await expect(page.locator('#count')).toHaveText('3/5');
+    // The fill is animated, so poll it rather than measuring mid-transition.
+    const filled = async () => {
+      const [bar, fill] = await Promise.all(
+        [page.locator('.track'), page.locator('#trackFill')].map((l) => l.boundingBox()));
+      return fill.width / bar.width;
+    };
+    await expect.poll(filled).toBeCloseTo(22 / 29, 2);
+  });
+
+  test('Home goes back to the contents from anywhere in the deck', async ({ page }) => {
+    await showCard(page, 'D1');
+    await page.click('#home');
+    await expect(page.locator('body')).toHaveAttribute('data-card', 'contents');
+    await expect(page.locator('#home')).toBeDisabled();       // already there
+  });
+
+  test('the deck stops at its ends instead of replaying the card', async ({ page }) => {
+    const last = await page.evaluate(() => window.__vk.cards.at(-1).id);
+    await showCard(page, last);
+    const steps = await page.evaluate(() => window.__vk.cards.at(-1).scenes.length);
+    for (let i = 0; i < steps + 2; i++) await page.keyboard.press('ArrowRight');
+    await expect(page.locator('body')).toHaveAttribute('data-card', last);
+    await expect(page.locator('#next')).toBeDisabled();
+    // And the same at the front: the contents card never steps backwards off itself.
+    await page.click('#home');
+    await page.keyboard.press('ArrowLeft');
+    await expect(page.locator('body')).toHaveAttribute('data-card', 'contents');
   });
 
   test('the court and card copy are centred on the screen, at any width', async ({ page }) => {
@@ -167,7 +196,7 @@ test.describe('mobile shell', () => {
       const b = await page.locator(sel).boundingBox();
       expect(Math.abs(b.x + b.width / 2 - width / 2), `${sel} centre`).toBeLessThanOrEqual(3);
     }
-    await expect(page.locator('#count')).toHaveText('3/24');
+    await expect(page.locator('#count')).toHaveText('1/16');     // A1 is the first of the Directionals
   });
 
   test('Why button clears a 44px tap target', async ({ page }) => {

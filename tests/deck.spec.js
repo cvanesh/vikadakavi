@@ -7,7 +7,7 @@ test.describe('Module A deck', () => {
     page.on('pageerror', (e) => errors.push(e.message));
     await unlock(page, { staticScenes: true });
     const ids = await page.evaluate(() => window.__vk.cards.map((c) => c.id));
-    expect(ids).toHaveLength(25);           // contents + 2 oath + 16 directionals + 1 between points + 5 laws
+    expect(ids).toHaveLength(30);           // contents + 2 oath + 16 directionals + 1 between points + 5 laws + 5 math
     for (const id of ids) {
       await showCard(page, id);
       await expect(page.locator('[data-scene-state="done"]'), id).toHaveCount(1);
@@ -47,6 +47,39 @@ test.describe('Module A deck', () => {
     expect(laws).toEqual(['D1', 'D2', 'D5', 'D3', 'D4']);
     await showCard(page, 'D5');
     await expect(page.locator('.court.sideview')).toBeVisible();
+  });
+
+  test('the hidden-math section draws bars for the numbers and a court for the shots', async ({ page }) => {
+    await unlock(page, { staticScenes: true });
+    const math = await page.evaluate(() =>
+      window.__vk.cards.filter((c) => c.module === 'The hidden math').map((c) => c.id));
+    expect(math).toEqual(['B1', 'B2', 'B3', 'B4', 'B5']);
+    // B1's two bars are the whole argument: 55% of points, 91% of matches.
+    await showCard(page, 'B1');
+    await expect(page.locator('.bars li')).toHaveCount(3);
+    await expect(page.locator('.bars-value').first()).toHaveText('55%');
+    await expect(page.locator('.bars-value').nth(1)).toHaveText('91%');
+    // The two shot cards stay on the court.
+    for (const id of ['B3', 'B5']) {
+      await showCard(page, id);
+      await expect(page.locator('.court'), id).toBeVisible();
+      await expect(page.locator('.bars'), id).toHaveCount(0);
+    }
+  });
+
+  test('the leverage ladder steps from the hinge scores to the break point', async ({ page }) => {
+    // Not static: static mode composes the last step, and the point here is the
+    // move from the first to the second.
+    await unlock(page);
+    await showCard(page, 'B2');
+    const lit = () => page.locator('.bars li[data-dim="false"] .bars-label').allTextContents();
+    expect(await lit()).toEqual(['30–30 · deuce']);
+    await page.click('#step');
+    await expect.poll(lit).toEqual(['30–40 · break point']);
+    // Break point is drawn longer than deuce, because 0.69 beats 0.46.
+    await expect(page.locator('[data-scene-state="done"]')).toHaveCount(1, { timeout: 15_000 });
+    const width = (n) => page.locator('.bars-track i').nth(n).boundingBox().then((b) => b.width);
+    expect(await width(0)).toBeGreaterThan(await width(1));
   });
 
   test('the opening D3 leaves them is drawn only once he has recovered', async ({ page }) => {

@@ -8,14 +8,14 @@ not "should work". Update this alongside `PROGRESS.md`.
 
 | ID | Requirement | Status | Where | Evidence |
 | --- | --- | --- | --- | --- |
-| P1 | Hosted at `cvanesh.github.io/vikadakavi` | **Blocked** | `manifest.json` scope | Needs repo + Pages |
+| P1 | Hosted at `cvanesh.github.io/vikadakavi` | **Done** | `manifest.json` scope | Live 2026-09-18; HTTP 200, real payload, no `t:1` stamp |
 | P2 | Fully encrypted payload, decrypted only on passphrase | **Done** | `index.html`, `tools/encrypt.mjs` | `gate.spec.js` — payload contains no source; no lesson text pre-unlock |
-| P3 | Deploys on push to `main` | **Done (unverified live)** | `.github/workflows/deploy.yml` | Guarded by `check-payload.mjs` |
+| P3 | Deploys on push to `main` | **Done** | `.github/workflows/deploy.yml` | Guarded by `check-payload.mjs`; live payload SHA-256 matches the local build byte for byte |
 | P4 | Mobile-first PWA | **Done** | `manifest.json`, `sw.js`, `app.css` | `mobile.spec.js` — no sideways scroll, court + nav on the first screen (copy may scroll on phones), 44px targets |
 | P5 | Security | **Done** | `index.html` | Passphrase never stored; payload nulled after unlock; `gate.spec.js` |
 | P6 | Speed | **Partial** | — | Bundle 35.9 KB; PBKDF2 310k ≈ 0.5 s unlock. Not yet measured on a real phone |
 | P7 | Separate app from tennis-oath | **Done** | own repo/scope | By construction |
-| P8 | Works offline after first unlock | **Done (unverified live)** | `sw.js` | SW only registers on https, so untestable locally |
+| P8 | Works offline after first unlock | **Partial** | `sw.js` | Registered and serving live; the airplane-mode walk on the phone is still the owner's to do |
 
 ## Content — Directionals (brief item a)
 
@@ -42,21 +42,21 @@ review. The built card shipped as A2 is script **A4**; script A2 is the definiti
 | C15 | Court position — 3 zones | **Built** | A15 (zones as book fig 4.1) |
 | C16 | Shot selection — drive / slice / loop | **Built** | A16 (side view) |
 
-Built = in the encrypted app, all 16 cards pass `deck.spec.js` on 3 devices. Not
-yet verified live on the phone (Phase 1 deploy is on hold).
+Built = in the encrypted app, all 16 cards pass `deck.spec.js` on 3 devices.
+Deployed and live since 2026-09-18; not yet walked on the owner's phone.
 
 ## Content — Match rules and craft (brief item b)
 
 | ID | Requirement | Status | Source |
 | --- | --- | --- | --- |
-| C17 | Not all points are equal | Planned | `tennis-math-guide.md` §6 |
-| C18 | 30–30 and deuce are the hinge (leverage 0.46) | Planned | same, leverage table |
-| C19 | First to 30 → raise margin, stop going for lines | Planned | same + 5 Laws |
-| C20 | Break point is the biggest point (0.69) | Planned | same |
-| C21 | Small consistent edges: 55% of points ≈ 90% of matches | Planned | same §10 |
-| C22 | Second serve — two risky serves is the losing bet | Planned | same §8 |
-| C23 | Serve direction — mix wide and T | Planned | same §7 |
-| C24 | Fast server → step back to return, recover to baseline | Planned | owner's brief |
+| C17 | Not all points are equal | **Built** | B2, step 1 |
+| C18 | 30–30 and deuce are the hinge (leverage 0.46) | **Built** | B2, step 1 |
+| C19 | First to 30 → raise margin, stop going for lines | **Built** | B3 — and it delivers most of C29, which the owner deferred; his call whether C29 still needs its own card |
+| C20 | Break point is the biggest point (0.69) | **Built** | B2, step 2 |
+| C21 | Small consistent edges: 55% of points ≈ 90% of matches | **Built** | B1 |
+| C22 | Second serve — two risky serves is the losing bet | **Built** | B4 |
+| C23 | Serve direction — mix wide and T | **Built** | B5 |
+| C24 | Fast server → step back to return, recover to baseline | **Blocked** | Owner's brief only. Nothing in `references/` to quote, so it has no card — a coach question on the Module B review page |
 | C25 | Stay calm — the between-point routine | **Built** | C1: the routine file as a strict protocol — four steps, reset cue, breathing, what winning the routine looks like. Only that file (owner, 2026-09-17) |
 | C29 | Prepare questions: score / who is under pressure; 30–30 or deuce → play high percentage | **Deferred** | Owner's custom rule, for a later separate card — kept off C1 |
 | C26 | Sanctity of court, balls, equipment — never kick a ball | Planned | owner's brief |
@@ -84,7 +84,7 @@ yet verified live on the phone (Phase 1 deploy is on hold).
 | --- | --- | --- | --- |
 | Q1 | ~5 minutes (soft since 2026-09-16) | **Partial** | Elapsed clock; `cards.js` and `npm run scripts` warn past 30 cards / module budget; untested with a full deck |
 | Q2 | ~10 seconds per card | **Partial** | Design target; nothing advances on a timer. Arrow keys and swipes move one step, then on to the next card; the nav arrows move a whole card; the step counter is a button (owner, 2026-09-17) |
-| Q3 | Strict Playwright testing | **Done** | 114 tests, 5 spec files, 3 devices |
+| Q3 | Strict Playwright testing | **Done** | 181 tests, 6 spec files, 3 devices |
 | Q4 | Mobile rendering verified | **Done** | Pixel 5 + iPhone 13 projects |
 | Q5 | Incremental phases, gate at 100% | **Done (process)** | `VISION.md` §Phasing; Phase 1 still open |
 | Q6 | Vision file | **Done** | `docs/VISION.md` |
@@ -92,10 +92,32 @@ yet verified live on the phone (Phase 1 deploy is on hold).
 | Q8 | Proper folder organisation | **Done** | Cleanliness rule in `CLAUDE.md` |
 | Q9 | Agents / skills as needed | **N/A so far** | No task has warranted one |
 
+## Content — the hidden math (2026-09-18)
+
+Source: `references/tennis-math-guide.md`; B3 also quotes
+`references/5_laws_percentage_tennis.txt` for the margin numbers. Checked by
+`npm run scripts -- module-b`. The guide is a maths explainer, so every card has
+to land on something he does on court; the four topics that are only derivation
+(scoring, the game-win formula, the Markov chain, the IID caveat) are listed
+under `UNCOVERED` and deliberately have no card.
+
+| ID | Requirement | Status | Card |
+| --- | --- | --- | --- |
+| M1 | The amplifier — 55% of points is ~91% of matches | **Built** | B1, bars |
+| M2 | Leverage — the ladder of scores, deuce and 30–30 at 0.46 | **Built** | B2 step 1 |
+| M3 | Break point at 0.69, and why it beats deuce for any server over 50% | **Built** | B2 step 2 |
+| M4 | Play the hinge scores differently: bigger target, more clearance | **Built** | B3, court. Both balls still obey the Directionals — an outside ball goes back the way it came — so what separates them is where they land, not their direction |
+| M5 | Two risky serves is the losing bet | **Built** | B4, bars |
+| M6 | Serve as a guessing game — mix wide and T | **Built** | B5, court |
+
+Nothing here overrides the Directionals. B3 is the only card that touches shot
+choice and it only asks for more margin on the shot the Directionals already
+picked.
+
 ## Coverage summary
 
-- **Platform:** 6 of 8 done, 2 blocked on the owner.
-- **Content:** Contents card + Directionals (16) + Between points (1 of ~6). Module B planned.
+- **Platform:** 7 of 8 done; offline partial, pending the owner's phone walk.
+- **Content:** Contents card + Directionals (16) + Between points (1 of ~6) + 5 Laws (5) + the hidden math (5). Deck is 29 + contents, at the 30 ceiling.
 - **Visualisation:** engine complete; breadth limited by card count and two
   missing poses (volley, slice).
 - **Process:** in place.
