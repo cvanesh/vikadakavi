@@ -7,7 +7,8 @@ test.describe('Module A deck', () => {
     page.on('pageerror', (e) => errors.push(e.message));
     await unlock(page, { staticScenes: true });
     const ids = await page.evaluate(() => window.__vk.cards.map((c) => c.id));
-    expect(ids).toHaveLength(30);           // contents + 2 oath + 16 directionals + 1 between points + 5 laws + 5 math
+    // contents + 2 oath + 16 directionals + 1 between points + 5 laws + 5 math + 1 tactics
+    expect(ids).toHaveLength(31);
     for (const id of ids) {
       await showCard(page, id);
       await expect(page.locator('[data-scene-state="done"]'), id).toHaveCount(1);
@@ -85,6 +86,32 @@ test.describe('Module A deck', () => {
     await expect(page.locator('[data-scene-state="done"]')).toHaveCount(1, { timeout: 15_000 });
     const width = (n) => page.locator('.bars-track i').nth(n).boundingBox().then((b) => b.width);
     expect(await width(0)).toBeGreaterThan(await width(1));
+  });
+
+  test('the five tactics are one card of five steps, one tactic on screen at a time', async ({ page }) => {
+    await unlock(page);
+    await showCard(page, 'F1');
+    const names = ['Out-rally him', 'Find the weakness', 'Move him, coast to coast',
+                   'Take his time away', 'Use your weapon'];
+    for (const [i, name] of names.entries()) {
+      const panel = page.locator('.routine-step');
+      await expect(panel, name).toHaveCount(1);          // never the whole list
+      await expect(panel.locator('header b')).toHaveText(String(i + 1));
+      await expect(panel.locator('header span')).toHaveText(name);
+      await expect(page.locator('#step')).toContainText(`${i + 1}/5`);
+      if (i < names.length - 1) await page.click('#step');
+    }
+  });
+
+  test('a stepped text card puts its counter below the copy, not on top of it', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 780 });
+    await unlock(page);
+    await showCard(page, 'F1');
+    const [step, panel, nav] = await Promise.all(
+      [page.locator('#step'), page.locator('.routine-step'), page.locator('.nav')]
+        .map((l) => l.boundingBox()));
+    expect(step.y, 'counter clears the tactic').toBeGreaterThanOrEqual(panel.y + panel.height - 1);
+    expect(step.y + step.height, 'counter clears the nav').toBeLessThanOrEqual(nav.y + 1);
   });
 
   test('the opening D3 leaves them is drawn only once he has recovered', async ({ page }) => {

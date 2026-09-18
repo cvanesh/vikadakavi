@@ -83,9 +83,9 @@ Deployed and live since 2026-09-18; not yet walked on the owner's phone.
 
 | ID | Requirement | Status | Evidence |
 | --- | --- | --- | --- |
-| Q1 | ~5 minutes (soft since 2026-09-16) | **Partial** | Elapsed clock, now dimmed at the bar's right edge; `cards.js` and `npm run scripts` warn past 30 cards / module budget. **The deck is at 29 + contents, so the ceiling is reached** — a new card displaces one. Still never timed by the owner end to end |
+| Q1 | ~5 minutes (soft since 2026-09-16) | **Partial** | Elapsed clock, now dimmed at the bar's right edge. **The deck is at 30 + contents, one past `MAX_CARDS`, so `cards.js` warns on every load** — the owner went over knowingly on 2026-09-18. Still never timed end to end, so the card budget is exceeded but the five minutes is simply unmeasured |
 | Q2 | ~10 seconds per card | **Partial** | Design target; nothing advances on a timer. Arrow keys and swipes move one step, then on to the next card, and stop at both ends of the deck (owner, 2026-09-18); the nav arrows move a whole card; the step counter is a button (owner, 2026-09-17) |
-| Q3 | Strict Playwright testing | **Done** | 181 tests, 6 spec files, 3 devices |
+| Q3 | Strict Playwright testing | **Done** | 187 tests, 6 spec files, 3 devices |
 | Q4 | Mobile rendering verified | **Done** | Pixel 5 + iPhone 13 projects |
 | Q5 | Incremental phases, gate at 100% | **Done (process)** | `VISION.md` §Phasing; Phase 1 still open |
 | Q6 | Vision file | **Done** | `docs/VISION.md` |
@@ -115,10 +115,29 @@ Nothing here overrides the Directionals. B3 is the only card that touches shot
 choice and it only asks for more margin on the shot the Directionals already
 picked.
 
+## Content — Five tactics (owner, 2026-09-18)
+
+Source: `references/Tactics-PDF.pdf` (Coach Simon, Top Tennis Training),
+extracted to `references/tactics_win_singles.txt` with pypdf. Checked by
+`npm run scripts -- module-f`. **One card, F1, stepped five times.**
+
+| ID | Requirement | Status | Step |
+| --- | --- | --- | --- |
+| T1 | Out-rally him — be more consistent; find his breaking-down threshold | **Built** | 1/5 |
+| T2 | Find the weakness in the warm-up and exploit it; save it for big points | **Built** | 2/5 |
+| T3 | Move him coast to coast; it pays late, as he tires | **Built** | 3/5 |
+| T4 | Take his time away by coming to the net, on the right ball | **Built** | 4/5 |
+| T5 | Use your weapon, and set it up | **Built** | 5/5 — **deliberately overlaps D4 (your sword)**; a coach question asks whether to keep it for the sake of all five or cut it and point back |
+
+Two things in the PDF are intentionally not on the card, recorded in
+`UNCOVERED`: its sharing request and branding, and the Agassi anecdote about
+deliberately hitting balls his opponent could reach to tire him out — a
+professional's cruelty, not something to teach a junior as tactics.
+
 ## Coverage summary
 
 - **Platform:** 7 of 8 done; offline partial, pending the owner's phone walk.
-- **Content:** Contents card + Directionals (16) + Between points (1 of ~6) + 5 Laws (5) + the hidden math (5). Deck is 29 + contents, at the 30 ceiling.
+- **Content:** Contents card + the oath (2) + Directionals (16) + Between points (1 of ~6) + 5 Laws (5) + the hidden math (5) + Five tactics (1). Deck is 30 + contents, one past `MAX_CARDS`.
 - **Visualisation:** engine complete; breadth limited by card count and two
   missing poses (volley, slice).
 - **Process:** in place.

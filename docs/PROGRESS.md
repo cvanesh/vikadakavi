@@ -1,6 +1,6 @@
 # Progress
 
-**Updated:** 2026-09-18 · **LIVE** at https://cvanesh.github.io/vikadakavi/ · 181 tests green · **Contents + The oath (2) + Directionals (16) + Between points (1) + 5 Laws (5) + The hidden math (5)**.
+**Updated:** 2026-09-18 · **LIVE** at https://cvanesh.github.io/vikadakavi/ · 187 tests green · **Contents + The oath (2) + Directionals (16) + Between points (1) + 5 Laws (5) + The hidden math (5) + Five tactics (1)**.
 
 ## Published 2026-09-18
 
@@ -47,10 +47,10 @@ waiting on the owner.
 npm install
 VIKADAKAVI_PASSPHRASE=test npm run build
 npm run dev                      # http://localhost:8080/
-npm test                         # 181 tests, 3 devices (5 skip on WebKit)
+npm test                         # 187 tests, 3 devices (5 skip on WebKit)
 npm run visual                   # screenshots -> dev-tools/artifacts/visual/
 npm run scripts                  # check Module A scripts -> review page
-npm run scripts -- module-b      # The hidden math; -- module-c, -- module-d
+npm run scripts -- module-b      # -- module-c, -- module-d, -- module-f
 npm run backup                   # commit src/ + references/ to ../vikadakavi-src
 ```
 
@@ -77,14 +77,14 @@ re-read whole files or re-screenshot every card when one card changed.
 
 | What | Where |
 | --- | --- |
-| Card scripts (the signed-off content) | `src/content/scripts/module-a.js` (Directionals), `module-b.js` (The hidden math), `module-c.js` (Between points), `module-d.js` (5 Laws), `module-e.js` (the oath — not quote-checked; it is not from `references/`) |
+| Card scripts (the signed-off content) | `src/content/scripts/module-a.js` (Directionals), `module-b.js` (The hidden math), `module-c.js` (Between points), `module-d.js` (5 Laws), `module-e.js` (the oath — not quote-checked; it is not from `references/`), `module-f.js` (Five tactics) |
 | Book figures as data + owner rulings | `src/content/scripts/figures.js` |
 | Figure crops bundled into the payload | `src/content/figures/` (from `python3 tools/extract-figures.py`) |
 | Deck assembly: scenes, steps, contents card | `src/content/cards.js` |
-| Views | `src/app/scene.js` (court), `sideview.js` (A16, D5, and step 1 of D2), `bars.js` (B1, B2, B4), `routine.js` (C1), `oath.js` (E1–E2), `contents.js` |
+| Views | `src/app/scene.js` (court), `sideview.js` (A16, D5, and step 1 of D2), `bars.js` (B1, B2, B4), `routine.js` (C1 whole, F1 one stage per step via `only`), `oath.js` (E1–E2), `contents.js` |
 | Navigation and stepping | `src/app/main.js` — `go()` moves a card and stops at both ends, `goStep()` a step. `PLACE` holds each card's position inside its own section |
 | Top bar and nav | `src/app/main.js` markup + `.bar`/`.where`/`.track`/`.nav` in `app.css`. Section and position centred, one overall progress line, clock at the edge, five nav buttons including Home |
-| Review pages | `http://localhost:8080/dev-tools/artifacts/scripts/<module>.html` — `module-a`, `module-b`, `module-c`, `module-d` |
+| Review pages | `http://localhost:8080/dev-tools/artifacts/scripts/<module>.html` — `module-a`, `module-b`, `module-c`, `module-d`, `module-f` |
 
 ### How the owner reviews
 
@@ -120,7 +120,7 @@ cannot answer "so what does that imply?" in one sentence, it is not finished.
 | PWA | `manifest.json` + `sw.js` (shell + payload cached; ciphertext, so caching leaks nothing). |
 | Content | **Module A, 16 cards**, built by `src/content/cards.js` from the signed-off scripts. Engine: runs to the ball, multi-rally cards with step captions, serves, zone bands, court labels, a side view (A16). Optional **Why** panel (closes on card change) with the book figures (data URLs inside the payload). |
 | Tests | 134 across 3 devices, incl. `deck.spec.js`: every card draws and fits, rally stepping, Why panel stickiness, replay resets the pose, runners move, oath ticks, topic tiles. |
-| Sections (2026-09-17, extended 2026-09-18) | Deck is **29 cards in five sections**: The oath (2) → Directionals (16) → Between points (1) → 5 Laws (5) → The hidden math (5). The contents card leads with a tappable topic tile per section (icon, blurb, card count), then the full list. New sections are appended, never inserted, so nothing already reviewed is renumbered. |
+| Sections (2026-09-17, extended 2026-09-18) | Deck is **30 cards in six sections**: The oath (2) → Directionals (16) → Between points (1) → 5 Laws (5) → The hidden math (5) → Five tactics (1). The contents card leads with a tappable topic tile per section (icon, blurb, card count), then the full list. New sections are appended, never inserted, so nothing already reviewed is renumbered. |
 | The oath | `module-e.js`, copied from the tennis-oath app: player and parent oaths, 12 lines each, a box to tick per line, an in-memory counter. No streaks, no signing, nothing stored. Keeps the source emoji — the owner's exception to the no-emoji rule. |
 | Self-updating cache (2026-09-18) | `sw.js` serves cache-first under a fixed `vk-v1`, so a deploy used to sit unseen until the second launch. `index.html` now compares validators at startup — a HEAD on `./` and the payload (the worker passes non-GET straight out), ETag against the cached response — and if they differ it downloads, replaces the cache entry, and reloads. **No version to bump.** It reloads only while the gate is untouched, so an update never interrupts a deck mid-use; if he is busy, the cache is already new for next launch. Downloading before replacing means a dropped signal never leaves him with no offline copy. `tools/dev-server.mjs` now sends `ETag`/`Last-Modified` and answers HEAD, so the check works (and is testable) locally. Covered by `tests/update.spec.js`; 4 of its 6 skip on WebKit, which drops Cache Storage on reload over http — a harness limit, not the app. |
 | Phone layout (2026-09-18) | The copy takes its natural height and the court fills the rest: `.stage{flex:1 1 auto;min-height:40svh}`. It replaced `min-height:calc(100svh - 150px)`, whose 150px covered only the bar (46) and nav (58) — so a 185px copy block sat under the sticky nav with a **36px peek**, and because it was a constant, a taller phone gave every extra pixel to the court and none to the text. Now nothing scrolls on any court card. Court is 66 % of an iPhone 16 Pro (402×874) and 40 % of a 360×640, the tightest shipped. The oath and routine cards still flow and scroll, by design. |
@@ -129,6 +129,7 @@ cannot answer "so what does that imply?" in one sentence, it is not finished.
 | End of deck (2026-09-18, owner) | A right arrow or a swipe on the last card used to re-render that card, which read as the deck going backwards. `go()` now refuses to move past either end instead of letting `render` clamp. Arrows and swipes still move a step at a time and roll into the next card, unchanged. |
 | Math cards, review 1 (2026-09-18, owner) | "Too obscure." B1's best-of-5 bar was a dashed ghost beside two solid bars, so it read as a different quantity — solid now. B4 drew 64.8% vs 63.0% on the same scale as 4% vs 16%, which made the double faults look negligible and the points-won gap look like nothing: **the chart argued against its own card.** It draws the double faults alone. B2's two steps were the same picture with a different row lit; they now differ in caption, note and what is lit. |
 | Math cards, review 2 (2026-09-18, owner) | **The one real content error so far.** B2 printed a single leverage number per score. At 30–40 leverage (69) happens to equal the hold chance after winning the point, so the card invited "win this and you are at 69%" — which is wrong at every other score: at 30–30 the number was 46, but winning that point puts you at 88%. Each row is now a **span with both ends labelled** — chance of winning the game if you lose this point → if you win it — so neither end can be mistaken for the other and the bar's length *is* the leverage. B4's 4%/16% and its `(lands × wins)` formula became counts out of 25 service points, one against four. |
+| Five tactics (2026-09-18) | `module-f.js` from `references/Tactics-PDF.pdf` (Coach Simon, Top Tennis Training), extracted to `references/tactics_win_singles.txt` with pypdf. **One card, F1, stepped five times — one tactic per step.** Out-rally him (Nadal) → find the weakness (Murray) → move him coast to coast (Agassi, Djokovic) → take his time away (Henman) → use your weapon. It reuses `routine.js` with a new `only` option: with it set, the view renders that one stage instead of the whole list. The first attempt showed all five with four dimmed, which made the card taller than the screen and pushed the step counter onto the copy — the owner rejected it twice. In routine view the counter is now in normal flow under the stage, never floating. |
 | 5 Laws | `module-d.js` from `references/5_laws_percentage_tennis.txt` (extracted from the PDF with pypdf). Five cards: crosscourt geometry (with a disclaimer that the Directionals decide change of direction), margins (two steps: the air over the net in side view, then the margins measured against their lines), spin, the invitation (two animated steps: dragged to the alley, then recover to the hash mark), your sword. Spin is card D5 and sits after the margins card, not in the book's numbering: it is what pays for the clearance D2 asks for. |
 
 ## Pick up here (next session)
@@ -146,9 +147,11 @@ Done — so the next round is the first on the shipped version. It still carries
 (`src/content/scripts/module-b.js`); read them with
 `npm run scripts -- module-b` before touching the cards.
 
-**The deck is at 29 + contents, exactly the 30 ceiling.** Any new card now has
-to displace one, or the owner has to lift the ceiling. That is a decision, not
-a detail — `cards.js` only warns.
+**The deck is at 30 + contents, one past the `MAX_CARDS = 30` ceiling**, so
+`cards.js` now logs its warning on every load. The owner added the five-tactics
+card knowing this (2026-09-18) and the target has been soft since 2026-09-16 —
+but the deck has never actually been timed end to end, so whether it still
+fits five minutes is unmeasured, not merely over budget.
 
 Then whichever of these the owner wants:
 

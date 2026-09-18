@@ -109,7 +109,7 @@ test.describe('mobile shell', () => {
   });
 
   test('a topic tile jumps to the first card of that section', async ({ page }) => {
-    await expect(page.locator('.topic')).toHaveCount(5);
+    await expect(page.locator('.topic')).toHaveCount(6);
     await page.locator('.topic', { hasText: '5 Laws' }).click();
     await expect(page.locator('body')).toHaveAttribute('data-card', 'D1');
   });
@@ -156,7 +156,9 @@ test.describe('mobile shell', () => {
   });
 
   test('the progress line tracks position in the whole deck, not the section', async ({ page }) => {
-    // 5 Laws card 3 is deck position 22: 2 oath + 16 directionals + 1 between points + 3.
+    // 5 Laws card 3 is deck position 22 of 30: 2 oath + 16 directionals +
+    // 1 between points + 3. The text says where he is in the section, the line
+    // where he is in the deck; the two are deliberately different numbers.
     await showCard(page, 'D5');
     await expect(page.locator('#module')).toHaveText('5 Laws');
     await expect(page.locator('#count')).toHaveText('3/5');
@@ -166,7 +168,7 @@ test.describe('mobile shell', () => {
         [page.locator('.track'), page.locator('#trackFill')].map((l) => l.boundingBox()));
       return fill.width / bar.width;
     };
-    await expect.poll(filled).toBeCloseTo(22 / 29, 2);
+    await expect.poll(filled).toBeCloseTo(22 / 30, 2);
   });
 
   test('Home goes back to the contents from anywhere in the deck', async ({ page }) => {

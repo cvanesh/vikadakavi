@@ -72,8 +72,10 @@ only verifies `dist/payload.enc.js` and publishes. Never claim a change is
 
 - **Aim for ~30 cards, ~5 minutes total.** A soft target since 2026-09-16 — the owner
   allows going over for now. Every card still has to earn its ~10 seconds.
-  **The deck is at 29 + contents as of 2026-09-18, so the ceiling is reached:**
-  a new card displaces one, or the owner lifts the limit. `cards.js` only warns.
+  **The deck is at 30 + contents as of 2026-09-18 — one past `MAX_CARDS`**, so
+  `cards.js` logs its warning on every load. The owner went over knowingly. It
+  has still never been timed end to end, so say "over the card budget", never
+  "over five minutes" — nobody has measured the second thing.
 - **Mobile first, 390 px portrait** is the design target; desktop is secondary.
 - **Offline after first unlock.** Service worker caches the shell + payload.
 - **Right-handed, one-handed backhand** reference frame. All court geometry must
@@ -150,6 +152,7 @@ Shipping a derived image inside the encrypted payload needs the owner's explicit
 | --- | --- |
 | `High-Percentage Tactics.md` | Book text, ch. 3–4. **The** source for Module A. Figures indexed in `docs/FIGURES.md`. Untracked — do not commit. |
 | `paul_waldrow_directonals.txt` | Secondary summary. Quote the book instead. |
+| `Tactics-PDF.pdf` | Clean text layer. Coach Simon's five tactics for winning singles. Source for card F1; extracted to `tactics_win_singles.txt` with pypdf. Untracked — do not commit. |
 | `tennis-math-guide.md` | Text. Source for Module B, **built and shipped 2026-09-18**. The leverage table at p=0.6 gives hold-chance-if-won and if-lost per score; cards B2 quotes both columns, never the derived leverage alone. |
 | `between_point_routine.md` | Text. Four stages — REACT, RECOVER, PREPARE, RITUAL. Use this, not the "three Rs" from the original brief. |
 | `5_Laws_Percentage_Tennis.pdf` | Text-extractable. Crosscourt geometry, law of margins. |
